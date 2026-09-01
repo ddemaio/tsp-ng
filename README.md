@@ -1,4 +1,4 @@
-# Travel Support Program ## Proposed Content
+# Proposed: Travel Support Program - NextGen
 
 ### 1. Header
 - Title: `# TSP-NG — Travel Support Program (Next Generation)`
