@@ -1,0 +1,542 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "admin",
+      "full_name": "TSP Admin",
+      "role": "tsp",
+      "email": "admin@example.com",
+      "phone": "+49 152 1234567",
+      "city": "Nuremberg",
+      "state": "Bavaria",
+      "country": "Germany",
+      "banking_method": "iban",
+      "bank_iban": "DE89370400440532013000",
+      "bank_swift": "SOGEDEFFXXX",
+      "created_at": "2026-09-01T10:08:23.312Z",
+      "bank_account_no": "",
+      "bank_routing_no": "",
+      "bank_ifsc": ""
+    },
+    {
+      "id": 2,
+      "username": "requester",
+      "password": "requester",
+      "full_name": "Douglas DeMaio",
+      "role": "requester",
+      "email": "ddemaio@opensuse.org",
+      "phone": "",
+      "city": "Bamberg",
+      "state": "BY",
+      "country": "DE",
+      "banking_method": "iban",
+      "bank_account_no": "",
+      "bank_ifsc": "",
+      "created_at": "2026-09-01T10:08:23.312Z",
+      "bank_iban": "test",
+      "bank_swift": "102ii9s933",
+      "bank_routing_no": ""
+    },
+    {
+      "id": 3,
+      "username": "finance",
+      "password": "finance",
+      "full_name": "Finance Team",
+      "role": "finance",
+      "email": "finance@example.com",
+      "phone": "+49 89 5555 0000",
+      "city": "Munich",
+      "state": "Bavaria",
+      "country": "Germany",
+      "banking_method": "iban",
+      "bank_iban": "DE12500105170648489890",
+      "bank_swift": "INGDDEFFXXX",
+      "created_at": "2026-09-01T10:08:23.312Z",
+      "bank_account_no": "",
+      "bank_routing_no": "",
+      "bank_ifsc": ""
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "name": "openSUSE Conference 2026",
+      "location": "Nuremberg, Germany",
+      "start_date": "2026-06-15",
+      "end_date": "2026-06-17",
+      "accepting_requests": 1,
+      "created_at": "2026-09-01T10:08:23.312Z"
+    },
+    {
+      "id": 2,
+      "name": "FOSDEM 2026",
+      "location": "Brussels, Belgium",
+      "start_date": "2026-02-01",
+      "end_date": "2026-02-02",
+      "accepting_requests": 1,
+      "created_at": "2026-09-01T10:08:23.312Z"
+    },
+    {
+      "id": 3,
+      "name": "LinuxConf.au 2026",
+      "location": "Sydney, Australia",
+      "start_date": "2026-01-13",
+      "end_date": "2026-01-17",
+      "accepting_requests": 1,
+      "created_at": "2026-09-01T10:08:23.312Z"
+    },
+    {
+      "id": 4,
+      "name": "openSUSE Conference 2027",
+      "location": "Prague, Czechia",
+      "start_date": "2027-06-14",
+      "end_date": "2027-06-16",
+      "accepting_requests": 1,
+      "created_at": "2026-09-01T10:08:23.312Z"
+    },
+    {
+      "name": "openSUSE.Asia Summit 2026",
+      "location": "Jogjakarta",
+      "start_date": "2026-10-03",
+      "end_date": "2026-10-04",
+      "accepting_requests": 1,
+      "id": 5
+    }
+  ],
+  "requests": [
+    {
+      "user_id": 2,
+      "event_id": "1",
+      "talk_url": null,
+      "talk_title": "oSC 2026 Talk",
+      "state": "paid",
+      "id": 1,
+      "updated_at": "2026-09-01T10:09:11.766Z",
+      "approved_at": "2026-09-01T10:08:45.070Z",
+      "accepted_at": "2026-09-01T10:08:45.122Z",
+      "accepted_by": 2
+    },
+    {
+      "user_id": 2,
+      "event_id": "2",
+      "talk_url": null,
+      "talk_title": "FOSDEM Stand",
+      "state": "rejected",
+      "id": 2,
+      "updated_at": "2026-09-01T10:08:45.279Z"
+    },
+    {
+      "user_id": 2,
+      "event_id": "3",
+      "talk_url": null,
+      "talk_title": "LCA 2026 Talk",
+      "state": "cancelled",
+      "id": 3,
+      "updated_at": "2026-09-01T10:08:45.332Z"
+    },
+    {
+      "user_id": 2,
+      "event_id": "4",
+      "talk_url": null,
+      "talk_title": "oSC 2027 Talk",
+      "state": "paid",
+      "id": 4,
+      "updated_at": "2026-09-01T11:59:17.018Z",
+      "approved_at": "2026-09-01T10:09:50.027Z",
+      "accepted_at": "2026-09-01T10:09:50.085Z",
+      "accepted_by": 2
+    },
+    {
+      "user_id": 2,
+      "event_id": "5",
+      "description": "",
+      "talk_url": "http://o.o./talk",
+      "talk_title": "my talk",
+      "state": "paid",
+      "id": 5,
+      "updated_at": "2026-09-01T12:01:58.801Z",
+      "approved_at": "2026-09-01T11:38:18.383Z",
+      "accepted_at": "2026-09-01T11:38:43.863Z",
+      "accepted_by": 2
+    }
+  ],
+  "expenses": [
+    {
+      "request_id": 1,
+      "category": "transportation",
+      "description": "",
+      "estimated_amount": 2000,
+      "estimated_currency": "EUR",
+      "id": 1,
+      "approved_amount": 1500,
+      "approved_currency": "EUR"
+    },
+    {
+      "request_id": 2,
+      "category": "transportation",
+      "description": "",
+      "estimated_amount": 350,
+      "estimated_currency": "EUR",
+      "id": 2
+    },
+    {
+      "request_id": 3,
+      "category": "lodging",
+      "description": "",
+      "estimated_amount": 500,
+      "estimated_currency": "AUD",
+      "id": 3
+    },
+    {
+      "request_id": 4,
+      "category": "lodging",
+      "description": "Hotel in Prague",
+      "estimated_amount": 60000,
+      "estimated_currency": "INR",
+      "id": 4,
+      "approved_amount": 800,
+      "approved_currency": "USD"
+    },
+    {
+      "request_id": 5,
+      "category": "transportation",
+      "description": "Flight",
+      "estimated_amount": 3,
+      "estimated_currency": "eur",
+      "id": 5,
+      "approved_amount": 2,
+      "approved_currency": "EUR"
+    }
+  ],
+  "payments": [
+    {
+      "request_id": "1",
+      "amount": 1500,
+      "currency": "EUR",
+      "method": "wise-api",
+      "wise_transfer_id": "WISE-1788257325177-rar8xa",
+      "wise_status": "processing",
+      "recipient_name": "Jane Speaker",
+      "recipient_email": "jane@example.com",
+      "payment_reference": "TSP-1",
+      "id": 1
+    },
+    {
+      "request_id": "1",
+      "amount": 1500,
+      "currency": "EUR",
+      "method": "wise-api",
+      "wise_transfer_id": "WISE-1788257350591-tha76m",
+      "wise_status": "success",
+      "recipient_name": "Jane Speaker",
+      "recipient_email": "jane@example.com",
+      "payment_reference": "TSP-1",
+      "id": 2
+    },
+    {
+      "request_id": "4",
+      "amount": 800,
+      "currency": "EUR",
+      "method": "wise-api",
+      "wise_transfer_id": "WISE-1788262627265-p6lpw2",
+      "wise_status": "processing",
+      "recipient_name": "Douglas DeMaio",
+      "recipient_email": "ddemaio@opensuse.org",
+      "payment_reference": "TSP-4",
+      "id": 3
+    },
+    {
+      "request_id": "4",
+      "amount": 300,
+      "currency": "EUR",
+      "method": "wise-api",
+      "wise_transfer_id": "WISE-1788262651687-ckdlp7",
+      "wise_status": "processing",
+      "recipient_name": "Douglas DeMaio",
+      "recipient_email": "ddemaio@opensuse.org",
+      "payment_reference": "TSP-4",
+      "id": 4
+    },
+    {
+      "request_id": "4",
+      "amount": 800,
+      "currency": "USD",
+      "method": "wise-api",
+      "wise_transfer_id": "WISE-1788263903042-oytys1",
+      "wise_status": "success",
+      "recipient_name": "Douglas DeMaio",
+      "recipient_email": "ddemaio@opensuse.org",
+      "payment_reference": "TSP-4",
+      "id": 5
+    },
+    {
+      "request_id": "5",
+      "amount": 2,
+      "currency": "EUR",
+      "method": "wise-api",
+      "wise_transfer_id": "WISE-1788264114235-c5dz6w",
+      "wise_status": "success",
+      "recipient_name": "Douglas DeMaio",
+      "recipient_email": "ddemaio@opensuse.org",
+      "payment_reference": "TSP-5",
+      "id": 6
+    }
+  ],
+  "state_history": [
+    {
+      "request_id": 1,
+      "from_state": null,
+      "to_state": "draft",
+      "user_id": 2,
+      "id": 1
+    },
+    {
+      "request_id": 2,
+      "from_state": null,
+      "to_state": "draft",
+      "user_id": 2,
+      "id": 2
+    },
+    {
+      "request_id": 3,
+      "from_state": null,
+      "to_state": "draft",
+      "user_id": 2,
+      "id": 3
+    },
+    {
+      "request_id": 1,
+      "from_state": "draft",
+      "to_state": "submitted",
+      "user_id": 2,
+      "notes": "r1",
+      "id": 4
+    },
+    {
+      "request_id": 1,
+      "from_state": "submitted",
+      "to_state": "approved",
+      "user_id": 1,
+      "notes": null,
+      "id": 5
+    },
+    {
+      "request_id": 1,
+      "from_state": "approved",
+      "to_state": "accepted",
+      "user_id": 2,
+      "notes": "Requester accepted the approved request and agreed to the Code of Conduct and TSP rules",
+      "id": 6
+    },
+    {
+      "request_id": 2,
+      "from_state": "draft",
+      "to_state": "submitted",
+      "user_id": 2,
+      "notes": "r2",
+      "id": 7
+    },
+    {
+      "request_id": 2,
+      "from_state": "submitted",
+      "to_state": "rejected",
+      "user_id": 1,
+      "notes": "Not eligible",
+      "id": 8
+    },
+    {
+      "request_id": 3,
+      "from_state": "cancelled",
+      "to_state": "cancelled",
+      "user_id": 2,
+      "notes": "Cancelled trip",
+      "id": 9
+    },
+    {
+      "request_id": 1,
+      "from_state": "accepted",
+      "to_state": "paid",
+      "user_id": 3,
+      "notes": "Payment confirmed via Wise (WISE-1788257350591-tha76m)",
+      "id": 10
+    },
+    {
+      "request_id": 4,
+      "from_state": null,
+      "to_state": "draft",
+      "user_id": 2,
+      "id": 11
+    },
+    {
+      "request_id": 4,
+      "from_state": "draft",
+      "to_state": "submitted",
+      "user_id": 2,
+      "notes": "pls",
+      "id": 12
+    },
+    {
+      "request_id": 4,
+      "from_state": "submitted",
+      "to_state": "approved",
+      "user_id": 1,
+      "notes": null,
+      "id": 13
+    },
+    {
+      "request_id": 4,
+      "from_state": "approved",
+      "to_state": "accepted",
+      "user_id": 2,
+      "notes": "Requester accepted the approved request and agreed to the Code of Conduct and TSP rules",
+      "id": 14
+    },
+    {
+      "request_id": 5,
+      "from_state": null,
+      "to_state": "draft",
+      "user_id": 2,
+      "id": 15
+    },
+    {
+      "request_id": 5,
+      "from_state": "draft",
+      "to_state": "submitted",
+      "user_id": 2,
+      "notes": null,
+      "id": 16
+    },
+    {
+      "request_id": 5,
+      "from_state": "submitted",
+      "to_state": "approved",
+      "user_id": 1,
+      "notes": null,
+      "id": 17
+    },
+    {
+      "request_id": 5,
+      "from_state": "approved",
+      "to_state": "accepted",
+      "user_id": 2,
+      "notes": "Requester accepted the approved request and agreed to the Code of Conduct and TSP rules",
+      "id": 18
+    },
+    {
+      "request_id": 4,
+      "from_state": "accepted",
+      "to_state": "submitted_for_payment",
+      "user_id": 2,
+      "notes": "Requester uploaded all required documents and submitted the request for payment",
+      "id": 19
+    },
+    {
+      "request_id": 4,
+      "from_state": "submitted_for_payment",
+      "to_state": "paid",
+      "user_id": 3,
+      "notes": "Payment confirmed via Wise (WISE-1788263903042-oytys1)",
+      "id": 20
+    },
+    {
+      "request_id": 5,
+      "from_state": "accepted",
+      "to_state": "submitted_for_payment",
+      "user_id": 2,
+      "notes": "Requester uploaded all required documents and submitted the request for payment",
+      "id": 21
+    },
+    {
+      "request_id": 5,
+      "from_state": "submitted_for_payment",
+      "to_state": "paid",
+      "user_id": 3,
+      "notes": "Payment confirmed via Wise (WISE-1788264114235-c5dz6w)",
+      "id": 22
+    }
+  ],
+  "comments": [],
+  "documents": [
+    {
+      "request_id": 5,
+      "kind": "invoice",
+      "filename": "1788262734575-ODSD Prospectus.pdf",
+      "original_name": "ODSD Prospectus.pdf",
+      "mimetype": "application/pdf",
+      "size": 97135,
+      "uploaded_by": 2,
+      "id": 1
+    },
+    {
+      "request_id": 5,
+      "kind": "signed_form",
+      "filename": "1788262748308-R120481083.pdf",
+      "original_name": "R120481083.pdf",
+      "mimetype": "application/pdf",
+      "size": 97203,
+      "uploaded_by": 2,
+      "id": 2
+    },
+    {
+      "request_id": 4,
+      "kind": "receipt",
+      "filename": "1788263847162-doc-receipt.txt",
+      "original_name": "doc-receipt.txt",
+      "mimetype": "text/plain",
+      "size": 13,
+      "uploaded_by": 2,
+      "id": 3
+    },
+    {
+      "request_id": 4,
+      "kind": "invoice",
+      "filename": "1788263847206-doc-invoice.txt",
+      "original_name": "doc-invoice.txt",
+      "mimetype": "text/plain",
+      "size": 13,
+      "uploaded_by": 2,
+      "id": 4
+    },
+    {
+      "request_id": 4,
+      "kind": "signed_form",
+      "filename": "1788263847246-doc-form.txt",
+      "original_name": "doc-form.txt",
+      "mimetype": "text/plain",
+      "size": 10,
+      "uploaded_by": 2,
+      "id": 5
+    },
+    {
+      "request_id": 5,
+      "kind": "receipt",
+      "filename": "1788264108180-d5a.txt",
+      "original_name": "d5a.txt",
+      "mimetype": "text/plain",
+      "size": 2,
+      "uploaded_by": 2,
+      "id": 6
+    },
+    {
+      "request_id": 5,
+      "kind": "invoice",
+      "filename": "1788264108235-d5b.txt",
+      "original_name": "d5b.txt",
+      "mimetype": "text/plain",
+      "size": 2,
+      "uploaded_by": 2,
+      "id": 7
+    },
+    {
+      "request_id": 5,
+      "kind": "signed_form",
+      "filename": "1788264108285-d5c.txt",
+      "original_name": "d5c.txt",
+      "mimetype": "text/plain",
+      "size": 2,
+      "uploaded_by": 2,
+      "id": 8
+    }
+  ]
+}

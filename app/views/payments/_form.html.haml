@@ -1,0 +1,33 @@
+%strong.label.label-default= Reimbursement.human_attribute_name(:event)
+%br
+= render @reimbursement.event
+%br
+%strong.label.label-default= Reimbursement.human_attribute_name(:user)
+%br
+= render @reimbursement.user
+%br
+%strong.label.label-default= Payment.human_attribute_name(:reimbursement)
+%br
+= render @reimbursement
+
+- form_path = @payment.new_record? ? request_reimbursement_payments_path : request_reimbursement_payment_path
+= simple_form_for(@payment, :url => form_path, html: { class: 'form-horizontal' }, wrapper: :horizontal_form) do |f|
+  %strong.label.label-default= Payment.model_name.human
+  %br
+  .col-md-6
+    = f.input :date, :as => :dpicker
+    = f.input :amount do
+      = f.text_field :amount
+      = f.select :currency, currencies_for_select(:approved), {}
+    = f.input :method, :collection => @methods
+    = f.input :cost_amount do
+      = f.text_field :cost_amount
+      = f.select :cost_currency,currencies_for_select(:approved), {}
+    = f.input :code
+    = f.input :subject
+    = f.input :notes, :input_html => {:rows => 5}
+    = f.input :file, :as => :fileupload
+
+  .well.col-md-12
+    = f.button :submit, :class => 'btn btn-primary'
+    = link_to t('.cancel', :default => t("helpers.links.cancel")), request_reimbursement_path(@request), :class => 'btn btn-default'

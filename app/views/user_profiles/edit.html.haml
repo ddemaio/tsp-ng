@@ -1,0 +1,27 @@
+= content_for :page_header do
+  %h1= current_user.nickname
+= render 'profile_menu'
+%br
+= simple_form_for @profile, :url => user_profile_path, :as => :user do |f|
+  .row
+    .col-md-6
+      .col-md-4
+        = f.input :full_name
+        = f.input :birthday, :as => :dpicker, :input_html => {class: 'form-control'}
+        = f.input :country_code, :as => :country, :input_html => {:autocomplete => "off"}
+        = f.input :location
+        = f.input :postal_address
+        = f.input :zip_code
+        = f.input :description, :as => :text, :input_html => {:rows => 2}
+    .col-md-6
+      .col-md-4
+        = f.input :phone_number, :as => :string
+        = f.input :second_phone_number, :as => :string
+        = f.input :passport
+        = f.input :alternate_id_document
+        = f.input :website, :as => :url
+        = f.input :blog, :as => :url
+  .row
+    .col-md-12
+      .well
+        = f.button :submit, :class => 'btn btn-primary'

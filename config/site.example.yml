@@ -1,0 +1,105 @@
+common: &common
+  program_name: "Demo Travel Support Program"
+
+  secret:
+    devise: 'CHANGEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    token: 'CHANGEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    key_base: 'CHANGEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+
+  budget_limits: true
+
+  reimbursement_reminder:
+    days_after_event: 5
+    days_before_deadline: 5
+  async_emails: true
+  email_from: "Travel Support Program <noreply@example.com>"
+  email_footer: "Travel Support Program"
+  email_default_url_options:
+    host: 'localhost:3000'
+
+  # theme: "bento"
+
+  authentication:
+    ichain:
+      enabled: false
+      base_url: ""
+    database:
+      enabled: true
+
+  external_links:
+    - title: "openSUSE TSP"
+      url: "http://opensuse.org/openSUSE:Travel_Support_Program"
+    - title: "Application's Github"
+      url: "https://github.com/openSUSE/travel-support-program"
+
+  currencies_for_approved:
+    - EUR
+    - USD
+  payment_methods:
+    - Transfer
+    - Check
+  relevant_profile_fields:
+    - full_name
+    - country_code
+    - location
+    - zip_code
+    - postal_address
+    - phone_number
+
+  travel_sponsorships:
+    enabled: true
+    expenses_subjects:
+      - Plane
+      - Train
+      - Bus
+      - Lodging
+      - Other
+
+  shipments:
+    enabled: true
+    types:
+      - Big booth box
+      - Small booth box
+
+production:
+  <<: *common
+
+development:
+  <<: *common
+
+test:
+  <<: *common
+  async_emails: false
+
+  budget_limits: true
+
+  authentication:
+    ichain:
+      enabled: false
+    database:
+      enabled: true
+
+  check_request_template: "check_request.example.pdf"
+  check_request_layout: "check_request.example.yml"
+
+  currencies_for_approved:
+    - EUR
+    - USD
+  relevant_profile_fields:
+    - full_name
+    - location
+    - zip_code
+
+  travel_sponsorships:
+    enabled: true
+    expenses_subjects:
+      - Gas
+      - Droid rental
+      - Lodging
+      - Other
+
+  shipments:
+    enabled: true
+    types:
+      - Wookiee costumes box
+      - Death Star destruction kit

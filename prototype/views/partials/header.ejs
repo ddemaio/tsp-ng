@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Travel Support Program</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">TSP</div>
+    <% if (typeof user !== 'undefined' && user) { %>
+      <div class="nav-links">
+        <a href="/">Dashboard</a>
+        <a href="/events">Events</a>
+        <% if (user.role === 'requester' || user.role === 'tsp') { %>
+          <a href="/requests/new">New Request</a>
+        <% } %>
+        <% if (user.role === 'tsp' || user.role === 'finance') { %>
+          <a href="/reports">Reports</a>
+        <% } %>
+        <% if (user.role === 'finance') { %>
+          <a href="/payments">Payments</a>
+        <% } %>
+        <a href="/profile">Profile</a>
+        <span class="nav-user"><%= user.full_name %> (<%= user.role %>)</span>
+        <a href="/logout" class="nav-logout">Logout</a>
+      </div>
+    <% } %>
+  </nav>
+  <main class="container">

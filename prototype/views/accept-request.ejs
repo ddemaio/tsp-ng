@@ -1,0 +1,147 @@
+<%- include('partials/header', { user }) %>
+
+<div class="page-header">
+  <h1>Accept Approved Request</h1>
+</div>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert alert-error"><%= error %></div>
+<% } %>
+
+<div class="acceptance-container">
+  <div class="acceptance-header">
+    <span class="state-badge approved">approved</span>
+    <h2>Request #<%= request.id %> &mdash; <%= request.event_name %></h2>
+  </div>
+
+  <div class="guidance-box">
+    <h3>&#9888; Before You Accept</h3>
+    <p>Please read carefully. Accepting this request means you confirm that:</p>
+    <ol>
+      <li>You <strong>will attend</strong> the event as described in your request.</li>
+      <li>The expenses listed are <strong>accurate and reasonable</strong> for your travel.</li>
+      <li>You have provided or will provide a <strong>talk or presentation</strong> at the event (if applicable).</li>
+      <li>You agree to follow the <a href="https://en.opensuse.org/openSUSE:Code_of_Conduct" target="_blank">openSUSE Code of Conduct</a>.</li>
+      <li>You have read and will adhere to the <a href="https://en.opensuse.org/openSUSE:Travel_Support_Program" target="_blank">Travel Support Program rules</a>.</li>
+      <li>You understand that payment will be processed <strong>via Wise</strong> after acceptance, and that you must provide the requested documentation (signed form, receipts, invoice) before payment.</li>
+    </ol>
+  </div>
+
+  <div class="detail-grid">
+    <div class="detail-card">
+      <h3>Event Details</h3>
+      <dl>
+        <dt>Event</dt><dd><%= request.event_name %></dd>
+        <dt>Location</dt><dd><%= request.event_location %></dd>
+        <dt>Dates</dt><dd><%= request.event_start %> to <%= request.event_end %></dd>
+      </dl>
+    </div>
+
+    <% if (request.talk_title || request.talk_url) { %>
+    <div class="detail-card talk-card">
+      <h3>&#127908; Your Talk</h3>
+      <dl>
+        <% if (request.talk_title) { %>
+          <dt>Title</dt><dd><%= request.talk_title %></dd>
+        <% } %>
+        <% if (request.talk_url) { %>
+          <dt>URL</dt><dd><a href="<%= request.talk_url %>" target="_blank"><%= request.talk_url %></a></dd>
+        <% } %>
+      </dl>
+    </div>
+    <% } %>
+  </div>
+
+  <div class="detail-section">
+    <h3>Approved Expenses</h3>
+    <table class="expenses-table">
+      <thead>
+        <tr><th>Category</th><th>Description</th><th>Approved Amount</th></tr>
+      </thead>
+      <tbody>
+        <% expenses.forEach(exp => { %>
+          <tr>
+            <td><span class="category-badge"><%= exp.category %></span></td>
+            <td><%= exp.description || '-' %></td>
+            <td><strong><%= exp.approved_amount ? exp.approved_amount.toFixed(2) + ' ' + exp.approved_currency : 'Not set' %></strong></td>
+          </tr>
+        <% }) %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2"><strong>Total Approved</strong></td>
+          <td><strong><%= totalApproved.toFixed(2) %> EUR</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="detail-section what-happens-next">
+    <h3>What Happens Next?</h3>
+    <div class="steps">
+      <div class="step completed">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Request Submitted</h4>
+          <p>You submitted your travel support request with estimated expenses.</p>
+        </div>
+      </div>
+      <div class="step completed">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>TSP Review & Approval</h4>
+          <p>The TSP team reviewed and approved your request with the amounts shown above.</p>
+        </div>
+      </div>
+      <div class="step current">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Your Acceptance</h4>
+          <p>You are here. Confirm the details below to proceed.</p>
+        </div>
+      </div>
+      <div class="step upcoming">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h4>Payment Processing</h4>
+          <p>The finance team will process your payment via Wise. You'll receive the funds in your bank account.</p>
+        </div>
+      </div>
+      <div class="step upcoming">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h4>Attend & Contribute</h4>
+          <p>Attend the event, give your talk (if applicable), and enjoy!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form method="POST" action="/requests/<%= request.id %>/accept" class="acceptance-form">
+    <div class="confirmation-checkboxes">
+      <label class="checkbox-label">
+        <input type="checkbox" name="confirm_attendance" value="1" required>
+        <span>I confirm that I <strong>will attend</strong> this event and the travel details are correct.</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" name="confirm_details" value="1" required>
+        <span>I confirm that the approved expense amounts above are <strong>accurate and reasonable</strong>.</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" name="confirm_coc" value="1" required>
+        <span>I agree to follow the <a href="https://en.opensuse.org/openSUSE:Code_of_Conduct" target="_blank">openSUSE Code of Conduct</a> when attending the event and representing the project.</span>
+      </label>
+      <label class="checkbox-label">
+        <input type="checkbox" name="confirm_rules" value="1" required>
+        <span>I have read and will adhere to the <a href="https://en.opensuse.org/openSUSE:Travel_Support_Program" target="_blank">Travel Support Program rules</a> (including providing documentation and reporting back after the event).</span>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-success btn-lg">Accept & Confirm</button>
+      <a href="/requests/<%= request.id %>" class="btn btn-secondary">Go Back</a>
+    </div>
+  </form>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,78 @@
+<%- include('partials/header', { user }) %>
+
+<div class="page-header">
+  <h1>Travel Support Agreement</h1>
+  <div class="header-actions">
+    <button onclick="window.print()" class="btn btn-primary">Print / Save as PDF</button>
+    <a href="/requests/<%= request.id %>" class="btn btn-secondary">Back to Request</a>
+  </div>
+</div>
+
+<div class="signed-form">
+  <div class="form-brand">
+    <h2>openSUSE Travel Support Program &mdash; Reimbursement Agreement</h2>
+    <p class="form-doc-id">Request #<%= request.id %> &middot; Agreement generated <%= new Date().toISOString().slice(0, 10) %></p>
+  </div>
+
+  <div class="detail-card plain">
+    <h3>Purpose of the Travel Support Program</h3>
+    <p class="purpose-text">
+      The Travel Support Program helps community members attend events they otherwise couldn’t afford. It reimburses part of the cost of travel and accommodation (flights, trains, hotels) for people going to open-source conferences like openSUSE Conference or FOSDEM to speak, run booths, or otherwise represent and promote the project. Applications are reviewed by a small committee, and funding is partial rather than full.
+    </p>
+  </div>
+
+  <div class="detail-card plain">
+    <h3>Approved Reimbursement</h3>
+    <table class="expenses-table">
+      <thead>
+        <tr><th>Category</th><th>Description</th><th>Approved</th></tr>
+      </thead>
+      <tbody>
+        <% let total = 0; %>
+        <% approved.forEach(exp => { %>
+          <% total += exp.approved_amount; %>
+          <tr>
+            <td><%= exp.category %></td>
+            <td><%= exp.description || '-' %></td>
+            <td><%= exp.approved_amount.toFixed(2) %> <%= exp.approved_currency %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <p class="form-total">
+      <% Object.entries(totals).forEach(([cur, sum]) => { %>
+        <strong>Total approved: <%= sum.toFixed(2) %> <%= cur %></strong><br>
+      <% }) %>
+      <span class="form-hint">Payment will be issued by the openSUSE Travel Support Committee to the request details on file.</span>
+    </p>
+  </div>
+
+  <div class="detail-card plain">
+    <h3>Signature</h3>
+    <p>
+      I, <strong><%= requester.full_name %></strong> (<%= requester.email %>), confirm the approved total above and
+      agree to the openSUSE <a href="https://en.opensuse.org/openSUSE:Code_of_Conduct" target="_blank">Code of Conduct</a>
+      and the <a href="https://en.opensuse.org/openSUSE:Travel_Support_Program" target="_blank">Travel Support Program rules</a>.
+      I have attended (or will attend) the event and will report back to the community after it concludes.
+    </p>
+    <div class="signature-line">
+      <div class="sig-col">
+        <label>Name</label>
+        <div class="sig-write"><%= requester.full_name %></div>
+      </div>
+      <div class="sig-col">
+        <label>Total approved amount</label>
+        <% Object.entries(totals).forEach(([cur, sum]) => { %>
+          <div class="sig-write"><%= sum.toFixed(2) %> <%= cur %></div>
+        <% }) %>
+      </div>
+    </div>
+    <div class="signature-box">
+      <p>Signature: <span class="sig-space">______________________</span></p>
+      <p>Date: <span class="sig-space">______________________</span></p>
+    </div>
+    <p class="form-hint">After signing, print/save this page as PDF and upload it as the <strong>Signed Form</strong> on the request page.</p>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

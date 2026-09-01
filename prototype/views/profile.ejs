@@ -1,0 +1,118 @@
+<%- include('partials/header', { user }) %>
+
+<div class="page-header">
+  <h1>Profile &amp; Banking Information</h1>
+  <a href="/" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<% if (saved) { %>
+  <div class="alert alert-success">Profile saved successfully.</div>
+<% } %>
+<% if (error) { %>
+  <div class="alert alert-error"><%= error %></div>
+<% } %>
+
+<form method="POST" action="/profile" class="request-form">
+  <div class="form-section">
+    <h2>Personal Information</h2>
+    <div class="form-group">
+      <label for="full_name">Name</label>
+      <input type="text" name="full_name" id="full_name" value="<%= user.full_name %>" required>
+    </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" value="<%= user.email %>" required>
+    </div>
+    <div class="form-group">
+      <label for="phone">Phone number</label>
+      <input type="tel" name="phone" id="phone" value="<%= user.phone || '' %>" placeholder="+91 ... / +1 ... / +49 ...">
+    </div>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label for="city">City</label>
+        <input type="text" name="city" id="city" value="<%= user.city || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="state">State / Province / Region</label>
+        <input type="text" name="state" id="state" value="<%= user.state || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="country">Country</label>
+        <input type="text" name="country" id="country" value="<%= user.country || '' %>" placeholder="e.g. India, USA, Germany">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2>Banking / Payment Details</h2>
+    <p class="form-help">
+      Used by the financial team to pay your reimbursement. Depending on your country you can use an
+      <strong>IBAN + SWIFT/BIC</strong>, a US <strong>bank account + routing number</strong>, or the
+      <strong>India IFSC code</strong> (India uses the 11-character IFSC to identify its banks).
+    </p>
+
+    <div class="form-group">
+      <label for="banking_method">Payment method</label>
+      <select name="banking_method" id="banking_method">
+        <option value="">No banking details yet</option>
+        <% Object.entries(bankLabels).forEach(([key, label]) => { %>
+          <option value="<%= key %>" <%= user.banking_method === key ? 'selected' : '' %>><%= label %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="banking-fields" data-method="iban" <%= user.banking_method !== 'iban' ? 'hidden' : '' %>>
+      <div class="form-group">
+        <label for="bank_iban">IBAN</label>
+        <input type="text" name="bank_iban" id="bank_iban" value="<%= user.bank_iban || '' %>" placeholder="e.g. DE89370400440532013000">
+      </div>
+      <div class="form-group">
+        <label for="bank_swift">SWIFT / BIC</label>
+        <input type="text" name="bank_swift" id="bank_swift" value="<%= user.bank_swift || '' %>" placeholder="e.g. SOGEDEFFXXX">
+      </div>
+    </div>
+
+    <div class="banking-fields" data-method="us_bank" <%= user.banking_method !== 'us_bank' ? 'hidden' : '' %>>
+      <div class="form-group">
+        <label for="bank_account_no_us">Bank account number</label>
+        <input type="text" name="bank_account_no" id="bank_account_no_us" value="<%= user.bank_account_no || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="bank_routing_no">ABA routing number (9 digits)</label>
+        <input type="text" name="bank_routing_no" id="bank_routing_no" value="<%= user.bank_routing_no || '' %>" placeholder="e.g. 021000021">
+      </div>
+    </div>
+
+    <div class="banking-fields" data-method="india_ifsc" <%= user.banking_method !== 'india_ifsc' ? 'hidden' : '' %>>
+      <div class="form-group">
+        <label for="bank_account_no_in">Bank account number</label>
+        <input type="text" name="bank_account_no" id="bank_account_no_in" value="<%= user.bank_account_no || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="bank_ifsc">IFSC code (11 characters)</label>
+        <input type="text" name="bank_ifsc" id="bank_ifsc" value="<%= user.bank_ifsc || '' %>" placeholder="e.g. SBIN0001234">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Save Profile</button>
+  </div>
+</form>
+
+<script>
+  const methodSelect = document.getElementById('banking_method');
+  const groups = document.querySelectorAll('.banking-fields');
+  function applyMethod() {
+    const selected = methodSelect.value;
+    groups.forEach(g => {
+      const active = g.dataset.method === selected;
+      g.hidden = !active;
+      g.querySelectorAll('input').forEach(inp => { inp.disabled = !active; });
+    });
+  }
+  methodSelect.addEventListener('change', applyMethod);
+  applyMethod();
+</script>
+
+<%- include('partials/footer') %>

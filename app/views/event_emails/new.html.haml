@@ -1,0 +1,32 @@
+.col-md-10
+  %h2 Email the participants of #{@event.name}
+  .dropdown.pull-right
+    %button#select_recp.btn.btn-default.dropdown-toggle{"aria-expanded" => "true", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button", "data-users" => "#{users_for_event('all').empty?}"}
+      Select recipients
+      %span.caret
+    %ul#state-menu.dropdown-menu{"aria-labelledby" => "select_recp"}
+      - %w[Incomplete Submitted Approved Accepted Canceled All].each do |state|
+        %li
+          %input{id: 'state' + state, "type" => 'checkbox', "data-users" => users_for_event(state.downcase) }
+          %label{'for' => 'state' + state} #{state}
+  %br
+  = simple_form_for(@event_email, url: event_event_emails_path) do |f|
+    = f.input :to, as: :text,readonly: true,placeholder: 'Select the recipients', input_html: {rows: 1}
+    = f.input :subject
+    %div
+      %ul.nav.nav-tabs{:role => "tablist"}
+        %li.active{:role => "presentation"}
+          %a{"aria-controls" => "body", "data-toggle" => "tab", :href => "#body", :role => "tab"} Body
+        %li{:role => "presentation"}
+          %a{"aria-controls" => "preview", "data-toggle" => "tab", :href => "#preview", :role => "tab", "data-event-id" => "#{@event.id}"} Preview
+      .tab-content
+        #body.tab-pane.active{:role => "tabpanel"}
+          = f.input :body, as: :text, hint: 'This field supports markdown', input_html: {rows: 12}, label: false
+          %a{:href => "https://daringfireball.net/projects/markdown/syntax"}
+            View Markdown Syntax
+        #preview.tab-pane{:role => "tabpanel"}
+          .panel.panel-default
+            .panel-body#preview_screen
+    .pull-right
+      = f.button :submit, 'Send', class: 'btn btn-primary', data: { disable_with: "Please wait..." }
+      = link_to 'Cancel', event_event_emails_path(@event) , class: 'btn btn-default'

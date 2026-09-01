@@ -1,0 +1,28 @@
+.event_email_show {
+    .well {
+        word-wrap: break-word;
+    }
+    .email_to {
+        font-size: 16px
+    }
+}
+
+.event_email_index {
+    margin-bottom: 10px;
+    h3 {
+        margin: 0 !important;
+    }
+}
+
+.dropdown-menu {
+    padding-left: 18px;
+
+    li label {
+        cursor: pointer;
+        width: 75%;
+    }
+}
+
+.selected {
+    background-color: #428bca;
+}

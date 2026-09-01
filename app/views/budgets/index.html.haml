@@ -1,0 +1,32 @@
+- model_class = Budget
+= content_for :page_header do
+  %h1= t('.title', :default => model_class.model_name.human(count: 2))
+
+%nav.navbar.navbar-default.nav-tsp
+  .container-fluid
+    .navbar-header
+      = link_to t('.new', :default => t("helpers.links.new")), new_budget_path, :class => 'navbar-btn btn btn-primary'
+
+    = search_form_for @q, :builder => SimpleForm::FormBuilder, :class => "navbar-form pull-right" do |f|
+      = f.text_field :name_or_description_cont, class: 'form-control inpt-w'
+      = f.submit t(:search), :class => "btn btn-default"
+      = link_to t(:reset_search), budgets_path, :class => "btn btn-default"
+
+%table.table.table-striped.events
+  %thead
+    %tr
+      %th= sort_link(@q, :name)
+      %th= sort_link(@q, :description)
+      %th= sort_link(@q, :amount)
+      %th= sort_link(@q, :currency)
+      %th= model_class.human_attribute_name(:events)
+  %tbody
+    - @index.each do |r|
+      %tr
+        %td= link_to r.name, budget_path(r)
+        %td= r.description
+        %td= number_to_currency(r.amount, :unit => "")
+        %td= r.currency
+        %td= r.events.pluck(:name).join(", ")
+
+= paginate @index

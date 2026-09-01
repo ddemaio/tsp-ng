@@ -1,0 +1,52 @@
+<%- include('partials/header', { user }) %>
+
+<div class="page-header">
+  <h1>Events</h1>
+  <a href="/events/new" class="btn btn-primary">+ New Event</a>
+</div>
+
+<div class="filter-box">
+  <h3><%= searching ? 'Search previous events by date' : 'Upcoming events' %></h3>
+  <form method="GET" action="/events" class="filter-form">
+    <div class="form-group">
+      <label for="from">From date</label>
+      <input type="date" name="from" id="from" value="<%= from %>">
+    </div>
+    <div class="form-group">
+      <label for="to">To date</label>
+      <input type="date" name="to" id="to" value="<%= to %>">
+    </div>
+    <button type="submit" class="btn btn-primary">Search Events</button>
+    <a href="/events" class="btn btn-secondary">Show Upcoming</a>
+  </form>
+  <p class="form-hint">
+    Past events are hidden by default. Use the date fields above to find and review previous events.
+  </p>
+</div>
+
+<% if (events.length === 0) { %>
+  <div class="empty-state">
+    <p><%= searching ? 'No events found for the selected dates.' : 'No upcoming events right now.' %></p>
+  </div>
+<% } else { %>
+  <div class="events-grid">
+    <% events.forEach(e => { %>
+      <div class="event-card <%= (!e.end_date || e.end_date < new Date().toISOString().slice(0,10)) ? 'past-event' : '' %>">
+        <h3><%= e.name %></h3>
+        <dl>
+          <dt>Location</dt><dd><%= e.location %></dd>
+          <dt>Dates</dt><dd><%= e.start_date %> to <%= e.end_date %></dd>
+        </dl>
+        <% if (e.accepting_requests && (!e.end_date || e.end_date >= new Date().toISOString().slice(0,10))) { %>
+          <a href="/requests/new?event=<%= e.id %>" class="btn btn-primary">Apply for Travel Support</a>
+        <% } else if (!e.end_date || e.end_date < new Date().toISOString().slice(0,10)) { %>
+          <span class="badge-closed">Past event</span>
+        <% } else { %>
+          <span class="badge-closed">Not accepting requests</span>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %>

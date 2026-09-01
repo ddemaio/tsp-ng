@@ -1,0 +1,347 @@
+<%- include('partials/header', { user }) %>
+
+<div class="page-header">
+  <h1>Request #<%= request.id %></h1>
+  <div class="header-actions">
+    <% if (user.role === 'requester' && request.user_id === user.id && (request.state === 'draft' || request.state === 'submitted')) { %>
+      <a href="/requests/<%= request.id %>/edit" class="btn btn-secondary">Edit Request</a>
+    <% } %>
+    <% if (['approved', 'accepted', 'submitted_for_payment'].includes(request.state)) { %>
+      <a href="/requests/<%= request.id %>/form" class="btn btn-secondary" target="_blank">Download Signed Form</a>
+    <% } %>
+    <a href="/" class="btn btn-secondary">Back to Dashboard</a>
+  </div>
+</div>
+
+<% if (['approved', 'accepted', 'submitted_for_payment', 'paid'].includes(request.state)) { %>
+  <div class="notice-box">
+    <strong>This request is locked.</strong> Once approved, details can no longer be edited. Please <a href="#documents">upload your receipts and signed form</a> below if you haven't yet.
+  </div>
+<% } %>
+
+<div class="request-detail">
+  <div class="detail-header">
+    <span class="state-badge <%= request.state %>"><%= request.state %></span>
+    <span class="detail-event"><%= request.event_name %></span>
+  </div>
+
+  <div class="detail-grid">
+    <div class="detail-card">
+      <h3>Event</h3>
+      <dl>
+        <dt>Name</dt><dd><%= request.event_name %></dd>
+        <dt>Location</dt><dd><%= request.event_location %></dd>
+        <dt>Dates</dt><dd><%= request.event_start %> to <%= request.event_end %></dd>
+      </dl>
+    </div>
+
+    <div class="detail-card">
+      <h3>Requester</h3>
+      <dl>
+        <dt>Name</dt><dd><%= request.requester_name %></dd>
+        <dt>Email</dt><dd><%= request.requester_email %></dd>
+        <dt>Country</dt><dd><%= request.requester_country %></dd>
+      </dl>
+    </div>
+
+    <% if (request.talk_title || request.talk_url) { %>
+    <div class="detail-card talk-card">
+      <h3>&#127908; Talk / Presentation</h3>
+      <dl>
+        <% if (request.talk_title) { %>
+          <dt>Title</dt><dd><%= request.talk_title %></dd>
+        <% } %>
+        <% if (request.talk_url) { %>
+          <dt>URL</dt><dd><a href="<%= request.talk_url %>" target="_blank"><%= request.talk_url %></a></dd>
+        <% } %>
+      </dl>
+    </div>
+    <% } %>
+  </div>
+
+  <% if (request.description) { %>
+    <div class="detail-section">
+      <h3>Description</h3>
+      <p><%= request.description %></p>
+    </div>
+  <% } %>
+
+  <div class="detail-section">
+    <h3>Expenses</h3>
+    <table class="expenses-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Description</th>
+          <th>Estimated</th>
+          <% if (user.role === 'tsp') { %>
+            <th>Approved</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+        <% let totalEstimated = 0; let totalApproved = 0; %>
+        <% expenses.forEach(exp => { %>
+          <% totalEstimated += exp.estimated_amount; totalApproved += (exp.approved_amount || 0); %>
+          <tr>
+            <td><span class="category-badge"><%= exp.category %></span></td>
+            <td><%= exp.description || '-' %></td>
+            <td><%= exp.estimated_amount.toFixed(2) %> <%= exp.estimated_currency %></td>
+            <% if (user.role === 'tsp') { %>
+              <td><%= exp.approved_amount ? exp.approved_amount.toFixed(2) + ' ' + exp.approved_currency : '-' %></td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2"><strong>Total</strong></td>
+          <td><strong><%= totalEstimated.toFixed(2) %> EUR</strong></td>
+          <% if (user.role === 'tsp') { %>
+            <td><strong><%= totalApproved ? totalApproved.toFixed(2) + ' EUR' : '-' %></strong></td>
+          <% } %>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <% if (payment) { %>
+    <div class="detail-section payment-section">
+      <h3>Payment</h3>
+      <dl>
+        <dt>Amount</dt><dd><%= payment.amount.toFixed(2) %> <%= payment.currency %></dd>
+        <dt>Method</dt><dd><%= payment.method %></dd>
+        <dt>Recipient</dt><dd><%= payment.recipient_name %> (<%= payment.recipient_email %>)</dd>
+        <% if (payment.wise_transfer_id) { %>
+          <dt>Wise Transfer ID</dt><dd><%= payment.wise_transfer_id %></dd>
+          <dt>Wise Status</dt>
+          <dd>
+            <span class="wise-status <%= payment.wise_status %>"><%= payment.wise_status %></span>
+            <button onclick="checkPaymentStatus(<%= payment.id %>)" class="btn btn-sm btn-secondary">Refresh</button>
+          </dd>
+        <% } %>
+        <dt>Paid at</dt><dd><%= payment.paid_at || 'Pending' %></dd>
+      </dl>
+    </div>
+  <% } %>
+
+  <% if (user.role === 'tsp' && request.state === 'submitted') { %>
+    <div class="detail-section approval-section">
+      <h3>Review & Approve</h3>
+      <form method="POST" action="/requests/<%= request.id %>/approve" class="approval-form">
+        <div class="form-section">
+          <h4>Set Approved Amounts</h4>
+          <p class="form-help">Review each expense. Approve an amount in <strong>EUR or USD</strong> (the approved currencies). The requester submitted in their local currency; you set the equivalent approved value.</p>
+          <table class="expenses-table approval-table">
+            <thead>
+              <tr><th>Category</th><th>Requester Estimate</th><th>Approved Amount</th><th>Approved Currency</th></tr>
+            </thead>
+            <tbody>
+              <% expenses.forEach(exp => { %>
+                <tr>
+                  <td><%= exp.category %>: <%= exp.description || '-' %></td>
+                  <td><%= exp.estimated_amount.toFixed(2) %> <%= exp.estimated_currency %></td>
+                  <td>
+                    <input type="number" name="approved_amounts[]" step="0.01" min="0"
+                           class="amount-input">
+                  </td>
+                  <td>
+                    <select name="approved_currencies[]" class="currency-approve">
+                      <option value="EUR" selected>EUR</option>
+                      <option value="USD">USD</option>
+                    </select>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notes for requester</label>
+          <textarea name="notes" id="notes" rows="3" placeholder="Optional notes about your decision..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success">Approve Request</button>
+        </div>
+      </form>
+
+      <form method="POST" action="/requests/<%= request.id %>/reject" class="reject-form">
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to reject this request?')">Reject Request</button>
+      </form>
+    </div>
+  <% } %>
+
+  <% if (user.role === 'requester' && request.state === 'approved') { %>
+    <div class="detail-section acceptance-cta">
+      <h3>Your Request Has Been Approved!</h3>
+      <p>You need to accept the approved request before payment can be processed.</p>
+      <a href="/requests/<%= request.id %>/accept" class="btn btn-primary btn-lg">Review & Accept</a>
+    </div>
+  <% } %>
+
+  <% if (user.role === 'requester' && request.state === 'accepted') { %>
+    <div class="detail-section submit-payment-cta">
+      <h3>Submit for Payment</h3>
+      <% const requiredDocs = ['receipt', 'invoice', 'signed_form'];
+         const haveDocs = docKinds || [];
+         const uploaded = requiredDocs.filter(k => haveDocs.includes(k));
+         const missing = requiredDocs.filter(k => !haveDocs.includes(k)); %>
+      <p>Your request has been accepted. Before requesting payment, make sure you have uploaded:</p>
+      <ul class="docs-checklist">
+        <% requiredDocs.forEach(k => { %>
+          <li class="<%= haveDocs.includes(k) ? 'ok' : 'missing' %>">
+            <%= haveDocs.includes(k) ? '&#10003;' : '&#10007;' %> <%= docLabels[k] %>
+          </li>
+        <% }) %>
+      </ul>
+      <p class="form-help"><%= uploaded.length %>/3 documents uploaded.</p>
+      <% if (typeof submitPaymentError !== 'undefined' && submitPaymentError) { %>
+        <div class="error-box"><%= submitPaymentError %></div>
+      <% } %>
+      <form method="POST" action="/requests/<%= request.id %>/submit-for-payment">
+        <button type="submit" class="btn btn-primary btn-lg">Submit for Payment</button>
+      </form>
+      <p class="form-help">Once submitted, the finance team will process your payment. You can still upload documents after submitting.</p>
+    </div>
+  <% } %>
+
+  <div class="detail-section">
+    <h3>History</h3>
+    <div class="timeline">
+      <% history.forEach(h => { %>
+        <div class="timeline-item">
+          <span class="timeline-dot <%= h.to_state %>"></span>
+          <div class="timeline-content">
+            <strong><%= h.user_name %></strong>
+            <% if (h.from_state) { %>
+              moved from <span class="state-badge small <%= h.from_state %>"><%= h.from_state %></span>
+              to <span class="state-badge small <%= h.to_state %>"><%= h.to_state %></span>
+            <% } else { %>
+              created request as <span class="state-badge small <%= h.to_state %>"><%= h.to_state %></span>
+            <% } %>
+            <span class="timeline-date"><%= h.created_at %></span>
+            <% if (h.notes) { %>
+              <p class="timeline-notes"><%= h.notes %></p>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <% if (user.role === 'requester' && request.state === 'draft') { %>
+    <div class="detail-section">
+      <h3>Submit Request</h3>
+      <p>Once submitted, the TSP team will review it. You can still edit this request until it is approved &mdash; after approval it becomes locked.</p>
+      <form method="POST" action="/requests/<%= request.id %>/submit">
+        <button type="submit" class="btn btn-primary">Submit for Review</button>
+      </form>
+    </div>
+  <% } %>
+
+  <% if ((user.role === 'requester' && request.user_id === user.id && ['draft', 'submitted', 'approved'].includes(request.state)) ||
+         (user.role === 'tsp' && ['submitted', 'approved'].includes(request.state))) { %>
+    <div class="detail-section">
+      <h3>Cancel Request</h3>
+      <p>If this request is no longer needed, you can cancel it. A cancelled request is kept on record for reporting purposes.</p>
+      <form method="POST" action="/requests/<%= request.id %>/cancel" onsubmit="return confirm('Are you sure you want to cancel this request?')">
+        <button type="submit" class="btn btn-danger">Cancel Request</button>
+      </form>
+    </div>
+  <% } %>
+
+  <div class="detail-section" id="documents">
+    <h3>Documents</h3>
+    <p class="form-help">To receive your payment you must upload: a <strong>receipt</strong>, your <strong>invoice</strong>, and the <strong>signed form</strong> (stating the total amount, signed and uploaded). The financial team will see and download all documents.</p>
+
+    <% if (request.state === 'approved') { %>
+      <p class="form-help">Please download, sign, and upload the <a href="/requests/<%= request.id %>/form" target="_blank">digital form</a>. State the total approved amount and your name where indicated, then upload it here as <em>Signed Form</em>.</p>
+    <% } %>
+
+    <% if (documents.length === 0) { %>
+      <p class="empty-hint">No documents uploaded yet.</p>
+    <% } else { %>
+      <table class="documents-table">
+        <thead>
+          <tr><th>Type</th><th>File</th><th>Uploaded by</th><th>Date</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% documents.forEach(doc => { %>
+            <tr>
+              <td><span class="category-badge"><%= docLabels[doc.kind] || doc.kind %></span></td>
+              <td><%= doc.original_name %></td>
+              <td><%= doc.uploaded_by_name %></td>
+              <td><%= doc.created_at %></td>
+              <td><a href="/documents/<%= doc.id %>/download" class="btn btn-sm btn-secondary">Download</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+
+    <% if (user.role === 'requester' || user.role === 'tsp' || user.role === 'finance') { %>
+      <form method="POST" action="/requests/<%= request.id %>/documents" enctype="multipart/form-data" class="upload-form">
+        <div class="form-group">
+          <label for="kind">Document Type</label>
+          <select name="kind" id="kind" required>
+            <option value="receipt">Receipt</option>
+            <option value="invoice">Invoice</option>
+            <option value="signed_form">Signed Form</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="file">File</label>
+          <input type="file" name="file" id="file" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload Document</button>
+      </form>
+    <% } %>
+  </div>
+
+  <div class="detail-section" id="comments">
+    <h3>Comments</h3>
+    <% if (comments.length === 0) { %>
+      <p class="empty-hint">No comments yet.</p>
+    <% } else { %>
+      <div class="comment-thread">
+        <% comments.forEach(c => { %>
+          <div class="comment <%= c.user_id === user.id ? 'own' : '' %>">
+            <div class="comment-meta">
+              <strong><%= c.user_name %></strong>
+              <span class="comment-role"><%= c.user_role === 'tsp' ? 'TSP committee' : (c.user_role === 'finance' ? 'Finance' : 'Requester') %></span>
+              <span class="comment-date"><%= c.created_at %></span>
+            </div>
+            <p class="comment-body"><%= c.body %></p>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if ((user.role === 'tsp' || user.role === 'finance') || (user.role === 'requester' && request.user_id === user.id)) { %>
+      <form method="POST" action="/requests/<%= request.id %>/comments" class="comment-form">
+        <textarea name="body" rows="3" placeholder="Write a comment for the requester / reviewer..." required></textarea>
+        <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+      </form>
+    <% } %>
+  </div>
+</div>
+
+<script>
+function checkPaymentStatus(paymentId) {
+  fetch('/payments/' + paymentId + '/status')
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.status) {
+        const badge = document.querySelector('.wise-status');
+        if (badge) {
+          badge.textContent = data.status;
+          badge.className = 'wise-status ' + data.status;
+        }
+      }
+    });
+}
+</script>
+
+<%- include('partials/footer') %>

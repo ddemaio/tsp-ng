@@ -1,0 +1,31 @@
+<%- include('partials/header', { user: null }) %>
+
+<div class="login-container">
+  <h1>Travel Support Program</h1>
+  <p class="subtitle">Select a demo account to explore</p>
+
+  <div class="login-cards">
+    <% users.forEach(u => { %>
+      <form method="POST" action="/login" class="login-card">
+        <input type="hidden" name="userId" value="<%= u.id %>">
+        <div class="login-avatar <%= u.role %>">
+          <%= u.full_name.charAt(0) %>
+        </div>
+        <h3><%= u.full_name %></h3>
+        <span class="role-badge <%= u.role %>"><%= u.role %></span>
+        <p class="login-desc">
+          <% if (u.role === 'tsp') { %>
+            Review requests, set approved amounts, approve/reject
+          <% } else if (u.role === 'requester') { %>
+            Submit travel support requests, accept approved requests
+          <% } else { %>
+            Process payments via Wise, generate batch CSVs
+          <% } %>
+        </p>
+        <button type="submit" class="btn btn-primary">Login as <%= u.username %></button>
+      </form>
+    <% }) %>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

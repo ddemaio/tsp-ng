@@ -1,0 +1,176 @@
+<%- include('partials/header', { user }) %>
+
+<div class="page-header">
+  <h1>Payments</h1>
+</div>
+
+<section class="dashboard-section">
+  <div class="section-header">
+    <h2>Submitted for Payment (<%= readyForPayment.length %>)</h2>
+    <% if (readyForPayment.length > 0) { %>
+      <form method="POST" action="/payments/generate-csv" class="inline-form">
+        <input type="hidden" name="request_ids" value="<%= readyForPayment.map(r => r.id).join(',') %>">
+        <button type="submit" class="btn btn-secondary">Download Wise Batch CSV</button>
+      </form>
+    <% } %>
+  </div>
+
+  <% if (readyForPayment.length === 0) { %>
+    <div class="empty-state"><p>No requests ready for payment.</p></div>
+  <% } else { %>
+    <div class="request-list">
+      <% readyForPayment.forEach(r => { %>
+        <div class="request-card payment-card" id="payment-<%= r.id %>">
+          <div class="request-card-header">
+            <span class="state-badge submitted_for_payment">submitted for payment</span>
+          </div>
+          <h3><%= r.event_name %></h3>
+          <p class="request-desc"><%= r.requester_name %> &mdash; <%= r.requester_email %></p>
+          <p class="request-desc banking-line">
+            <strong>Banking:</strong> <%= bankingSummary(r) %>
+          </p>
+
+          <div class="documents-summary">
+            <h4>Documents (<%= (documentsByRequest[r.id] || []).length %>/3)</h4>
+            <% if ((documentsByRequest[r.id] || []).length === 0) { %>
+              <p class="empty-hint">No documents uploaded yet.</p>
+            <% } else { %>
+              <ul class="doc-list">
+                <% documentsByRequest[r.id].forEach(doc => { %>
+                  <li>
+                    <span class="category-badge"><%= docLabels[doc.kind] || doc.kind %></span>
+                    <a href="/documents/<%= doc.id %>/download"><%= doc.original_name %></a>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+            <a href="/requests/<%= r.id %>" class="btn btn-sm btn-secondary">View Request</a>
+          </div>
+
+          <div class="payment-form-inline">
+            <form method="POST" action="/payments/create" class="payment-form">
+              <input type="hidden" name="request_id" value="<%= r.id %>">
+              <input type="hidden" name="recipient_name" value="<%= r.requester_name %>">
+              <input type="hidden" name="recipient_email" value="<%= r.requester_email %>">
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Amount</label>
+                  <input type="number" name="amount" step="0.01" min="0" value="<%= r.total_approved ? r.total_approved.toFixed(2) : '' %>" required>
+                </div>
+                <div class="form-group">
+                  <label>Currency</label>
+                  <select name="currency">
+                    <option value="EUR">EUR</option>
+                    <option value="USD">USD</option>
+                    <option value="GBP">GBP</option>
+                    <option value="BRL">BRL</option>
+                    <option value="CZK">CZK</option>
+                    <option value="PLN">PLN</option>
+                    <option value="AUD">AUD</option>
+                    <option value="INR">INR</option>
+                    <option value="IDR">IDR</option>
+                    <option value="JPY">JPY</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Method</label>
+                  <select name="method">
+                    <option value="wise-api">Wise API Transfer</option>
+                    <option value="wise-csv">Wise CSV (manual)</option>
+                    <option value="bank-transfer">Bank Transfer</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Process Payment</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<section class="dashboard-section">
+  <h2>Processed Payments (<%= processedPayments.length %>)</h2>
+  <% if (processedPayments.length === 0) { %>
+    <div class="empty-state"><p>No payments processed yet.</p></div>
+  <% } else { %>
+    <table class="payments-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Request</th>
+          <th>Recipient</th>
+          <th>Amount</th>
+          <th>Method</th>
+          <th>Wise Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% processedPayments.forEach(p => { %>
+          <tr>
+            <td><%= p.paid_at || p.created_at %></td>
+            <td><a href="/requests/<%= p.request_id %>">#<%= p.request_id %> &mdash; <%= p.event_name %></a></td>
+            <td><%= p.recipient_name %></td>
+            <td><%= p.amount.toFixed(2) %> <%= p.currency %></td>
+            <td><%= p.method %></td>
+            <td>
+              <% if (p.wise_status) { %>
+                <span class="wise-status <%= p.wise_status %>"><%= p.wise_status %></span>
+              <% } else { %>
+                <span class="wise-status manual">manual</span>
+              <% } %>
+            </td>
+            <td>
+              <% if (p.wise_transfer_id) { %>
+                <button onclick="checkPaymentStatus(<%= p.id %>)" class="btn btn-sm btn-secondary">Refresh Status</button>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</section>
+
+<div class="info-box">
+  <h3>Wise Integration Options</h3>
+  <div class="integration-options">
+    <div class="integration-option">
+      <h4>1. Wise API Transfer (Automated)</h4>
+      <p>Initiate the transfer directly through the Wise API. The payment is created and tracked automatically. Requires a Wise Business account with API access.</p>
+      <p><strong>Setup:</strong> Set <code>WISE_API_TOKEN</code> and <code>WISE_PROFILE_ID</code> environment variables.</p>
+    </div>
+    <div class="integration-option">
+      <h4>2. Wise Batch CSV (Semi-automated)</h4>
+      <p>Download a CSV file with all submitted-for-payment requests, then upload it to Wise's "Send by email" batch payment feature. Good for processing multiple payments at once.</p>
+    </div>
+    <div class="integration-option">
+      <h4>3. Bank Transfer (Manual)</h4>
+      <p>Traditional manual bank transfer. Record the payment details after completing the transfer outside the system.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function checkPaymentStatus(paymentId) {
+  fetch('/payments/' + paymentId + '/status')
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.status) {
+        const row = document.querySelector(`[data-payment="${paymentId}"]`);
+        if (row) {
+          const badge = row.querySelector('.wise-status');
+          if (badge) {
+            badge.textContent = data.status;
+            badge.className = 'wise-status ' + data.status;
+          }
+        }
+      }
+    });
+}
+</script>
+
+<%- include('partials/footer') %>

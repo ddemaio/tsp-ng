@@ -1,0 +1,254 @@
+<%- include('partials/header', { user }) %>
+
+<div class="page-header">
+  <h1>Dashboard</h1>
+</div>
+
+<% if (user.role === 'requester') { %>
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2>My Requests</h2>
+      <a href="/requests/new" class="btn btn-primary">+ New Request</a>
+    </div>
+    <% if (dash.myRequests.length === 0) { %>
+      <div class="empty-state">
+        <p>No travel support requests yet.</p>
+        <a href="/requests/new" class="btn btn-primary">Submit your first request</a>
+      </div>
+    <% } else { %>
+      <div class="request-list">
+        <% dash.myRequests.forEach(r => { %>
+          <a href="/requests/<%= r.id %>" class="request-card">
+            <div class="request-card-header">
+              <span class="state-badge <%= r.state %>"><%= r.state %></span>
+              <span class="request-date"><%= r.event_date %></span>
+            </div>
+            <h3><%= r.event_name %></h3>
+            <p class="request-desc"><%= r.description || 'No description' %></p>
+            <% if (r.state === 'approved') { %>
+              <div class="action-needed">Action needed: Review and accept this approved request</div>
+            <% } else if (r.state === 'accepted') { %>
+              <div class="action-needed">Action needed: Upload documents and submit for payment</div>
+            <% } %>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </section>
+<% } %>
+
+<% if (user.role === 'tsp') { %>
+
+  <div class="report-summary dash-summary">
+    <div class="summary-card">
+      <span class="summary-label">Pending (submitted)</span>
+      <span class="summary-value"><%= dash.pendingReview.length %></span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Approved</span>
+      <span class="summary-value"><%= dash.totals.approved || 0 %></span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Accepted</span>
+      <span class="summary-value"><%= dash.totals.accepted || 0 %></span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">To pay</span>
+      <span class="summary-value"><%= dash.totals.submitted_for_payment || 0 %></span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Paid</span>
+      <span class="summary-value"><%= dash.totals.paid || 0 %></span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Rejected / Cancelled</span>
+      <span class="summary-value"><%= (dash.totals.rejected || 0) + (dash.totals.cancelled || 0) %></span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Approved funds (90 days)</span>
+      <span class="summary-value">&euro; <%= (dash.totals.approvedFunds || 0).toFixed(2) %></span>
+    </div>
+  </div>
+
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2>Pending Review (<%= dash.pendingReview.length %>)</h2>
+      <a href="/events" class="btn btn-secondary">Events</a>
+    </div>
+    <% if (dash.pendingReview.length === 0) { %>
+      <div class="empty-state"><p>No requests pending review.</p></div>
+    <% } else { %>
+      <table class="reports-table queue-table">
+        <thead>
+          <tr>
+            <th>Submitted</th>
+            <th>Event</th>
+            <th>Requester</th>
+            <th>Country</th>
+            <th>Talk</th>
+            <th>Est. total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% dash.pendingReview.forEach(r => { %>
+            <tr>
+              <td><%= (r.created_at || '').slice(0, 10) %></td>
+              <td><%= r.event_name %></td>
+              <td><%= r.requester_name %></td>
+              <td><%= r.requester_country %></td>
+              <td>
+                <% if (r.talk_title) { %>
+                  <%= r.talk_title %>
+                  <% if (r.talk_url) { %><a href="<%= r.talk_url %>" target="_blank" class="talk-link">View Talk</a><% } %>
+                <% } else { %>-<% } %>
+              </td>
+              <td><%= r.estimated_total ? r.estimated_total.toFixed(2) + ' EUR' : '-' %></td>
+              <td><a href="/requests/<%= r.id %>" class="btn btn-sm btn-primary">Review</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% if (dash.pendingReview.length === maxRows) { %>
+        <p class="form-hint">Showing the <%= maxRows %> oldest pending requests. Submit older ones are still awaiting review.</p>
+      <% } %>
+    <% } %>
+  </section>
+
+  <section class="dashboard-section">
+    <h2>Event Status &mdash; last 90 days</h2>
+    <% if (dash.eventSummary.length === 0) { %>
+      <div class="empty-state"><p>No events in the past 90 days.</p></div>
+    <% } else { %>
+      <table class="reports-table event-status-table">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Dates</th>
+            <th title="Submitted (pending)">Subm.</th>
+            <th title="Approved">Appr.</th>
+            <th title="Accepted">Acc.</th>
+            <th title="Submitted for payment">To pay</th>
+            <th title="Rejected">Rej.</th>
+            <th title="Cancelled">Canc.</th>
+            <th title="Paid">Paid</th>
+            <th>Approved funds</th>
+            <th>Running total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% let run = 0; %>
+          <% dash.eventSummary.forEach(s => { %>
+            <% run += s.approvedTotal; %>
+            <tr>
+              <td><strong><%= s.event.name %></strong><br><span class="muted"><%= s.event.location %></span></td>
+              <td><%= s.event.start_date %><br><span class="muted"><%= s.event.end_date %></span></td>
+              <td><%= s.counts.submitted %></td>
+              <td><%= s.counts.approved %></td>
+              <td><%= s.counts.accepted %></td>
+              <td><%= s.counts.submitted_for_payment %></td>
+              <td><%= s.counts.rejected %></td>
+              <td><%= s.counts.cancelled %></td>
+              <td><%= s.counts.paid %></td>
+              <td><strong><%= s.approvedTotal ? '\u20AC ' + s.approvedTotal.toFixed(2) : '-' %></strong></td>
+              <td><strong><%= '\u20AC ' + run.toFixed(2) %></strong></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </section>
+
+<% } %>
+
+<% if (user.role === 'finance') { %>
+
+  <div class="report-summary dash-summary">
+    <div class="summary-card">
+      <span class="summary-label">Submitted for payment</span>
+      <span class="summary-value"><%= dash.sfpTotal %></span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Amount to pay</span>
+      <span class="summary-value">&euro; <%= dash.sfpAmount.toFixed(2) %></span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Paid</span>
+      <span class="summary-value"><%= dash.paidCount %></span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-label">Total paid out</span>
+      <span class="summary-value">&euro; <%= dash.paidAmount.toFixed(2) %></span>
+    </div>
+  </div>
+
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2>Submitted for Payment (<%= dash.submittedForPayment.length %>)</h2>
+      <a href="/payments" class="btn btn-primary">Go to Payments</a>
+    </div>
+    <% if (dash.submittedForPayment.length === 0) { %>
+      <div class="empty-state"><p>No requests submitted for payment yet.</p></div>
+    <% } else { %>
+      <table class="reports-table queue-table">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Requester</th>
+            <th>Country</th>
+            <th>Approved</th>
+            <th>Docs</th>
+            <th>Banking</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% dash.submittedForPayment.forEach(r => { %>
+            <tr>
+              <td><a href="/requests/<%= r.id %>"><%= r.event_name %></a></td>
+              <td><%= r.requester_name %></td>
+              <td><%= r.requester_country %></td>
+              <td><%= r.approved_total.toFixed(2) %> EUR</td>
+              <td><%= r.docCount %>/3</td>
+              <td class="banking-line"><%= r.wise %></td>
+              <td><a href="/requests/<%= r.id %>" class="btn btn-sm btn-secondary">View</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </section>
+
+  <section class="dashboard-section">
+    <h2>Recently Paid (<%= dash.recentPaid.length %>)</h2>
+    <% if (dash.recentPaid.length === 0) { %>
+      <div class="empty-state"><p>No payments processed yet.</p></div>
+    <% } else { %>
+      <table class="reports-table queue-table">
+        <thead>
+          <tr>
+            <th>Paid</th>
+            <th>Event</th>
+            <th>Recipient</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% dash.recentPaid.forEach(r => { %>
+            <tr>
+              <td><%= (r.updated_at || '').slice(0, 10) %></td>
+              <td><a href="/requests/<%= r.id %>"><%= r.event_name %></a></td>
+              <td><%= r.requester_name %></td>
+              <td><%= eventApprovedMap && eventApprovedMap[r.id] ? eventApprovedMap[r.id].toFixed(2) + ' EUR' : '-' %></td>
+              <td><span class="state-badge small paid">paid</span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </section>
+
+<% } %>
+
+<%- include('partials/footer') %>

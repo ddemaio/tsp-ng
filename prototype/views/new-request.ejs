@@ -1,0 +1,186 @@
+<%- include('partials/header', { user }) %>
+
+<% const editing = typeof isEdit !== 'undefined' && request; %>
+<% const expRows = (typeof expenses !== 'undefined') && expenses ? expenses : []; %>
+<% const startIdx = expRows.length || 0; %>
+
+<div class="page-header">
+  <h1><%= editing ? 'Edit Request #' + request.id : 'New Travel Support Request' %></h1>
+  <a href="<%= editing ? '/requests/' + request.id : '/' %>" class="btn btn-secondary">Back</a>
+</div>
+
+<% if (editing && request.state === 'submitted') { %>
+  <div class="notice-box">
+    This request has been <strong>submitted for review</strong>. You can still edit it until it is approved &mdash; once approved, it will be locked.
+    Your reviewers will see the latest version.
+  </div>
+<% } %>
+
+<form method="POST" action="<%= editing ? '/requests/' + request.id + '/edit' : '/requests' %>" class="request-form">
+  <div class="form-section">
+    <h2>Event</h2>
+    <div class="form-group">
+      <label for="event_id">Select Event</label>
+      <select name="event_id" id="event_id" required>
+        <option value="">Choose an event...</option>
+        <% events.forEach(e => { %>
+          <option value="<%= e.id %>" <%= (editing && request.event_id == e.id) || (!editing && typeof preselected !== 'undefined' && preselected === e.id) ? 'selected' : '' %>><%= e.name %> &mdash; <%= e.location %> (<%= e.start_date %> to <%= e.end_date %>)</option>
+        <% }) %>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2>Talk / Presentation</h2>
+    <p class="form-help">If you will be giving a talk at this event, provide the details below. This helps the TSP team understand your contribution and may strengthen your request.</p>
+
+    <div class="form-group">
+      <label for="talk_title">Talk Title</label>
+      <input type="text" name="talk_title" id="talk_title" value="<%= editing ? (request.talk_title || '') : '' %>" placeholder="e.g. Introducing the New Build System">
+    </div>
+
+    <div class="form-group">
+      <label for="talk_url">Talk URL <span class="optional">(optional)</span></label>
+      <input type="url" name="talk_url" id="talk_url" value="<%= editing ? (request.talk_url || '') : '' %>" placeholder="https://fosdem.org/2026/schedule/talk/...">
+      <p class="form-hint">Link to your talk on the event schedule, your slides, or a video recording. This URL will be visible to reviewers.</p>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <h2>Expenses</h2>
+    <p class="form-help">Add your estimated costs. Costs are grouped into two categories only:</p>
+    <div class="category-legend">
+      <div class="legend-item">
+        <span class="legend-icon">&#128644;</span>
+        <div>
+          <strong>Transportation</strong>
+          <span class="legend-examples">Plane, train, bus</span>
+        </div>
+      </div>
+      <div class="legend-item">
+        <span class="legend-icon">&#127968;</span>
+        <div>
+          <strong>Lodging</strong>
+          <span class="legend-examples">Hotel, Airbnb</span>
+        </div>
+      </div>
+      <p class="form-hint margin-top">Other expenses such as taxis, meals, or conference registration are not covered by this program.</p>
+    </div>
+
+    <div id="expenses-list">
+      <% if (expRows.length > 0) { %>
+        <% expRows.forEach((exp, i) => { %>
+          <div class="expense-row">
+            <div class="form-group">
+              <label>Category</label>
+              <select name="expenses[<%= i %>][category]" required>
+                <option value="transportation" <%= exp.category === 'transportation' ? 'selected' : '' %>>Transportation</option>
+                <option value="lodging" <%= exp.category === 'lodging' ? 'selected' : '' %>>Lodging</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <input type="text" name="expenses[<%= i %>][description]" value="<%= exp.description || '' %>" placeholder="e.g. Round-trip flight SCL-FRA">
+            </div>
+            <div class="form-group amount-group">
+              <label>Amount</label>
+              <input type="number" name="expenses[<%= i %>][amount]" step="0.01" min="0" value="<%= exp.estimated_amount %>" required placeholder="0.00">
+            </div>
+            <div class="form-group currency-group">
+              <label>Currency</label>
+              <input type="text" name="expenses[<%= i %>][currency]" list="currency-suggestions" value="<%= exp.estimated_currency %>" placeholder="e.g. BRL" maxlength="3" autocomplete="off" required>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm remove-expense" style="<%= i === 0 ? 'visibility:hidden' : '' %>">&times;</button>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="expense-row">
+          <div class="form-group">
+            <label>Category</label>
+            <select name="expenses[0][category]" required>
+              <option value="transportation">Transportation</option>
+              <option value="lodging">Lodging</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <input type="text" name="expenses[0][description]" placeholder="e.g. Round-trip flight SCL-FRA">
+          </div>
+          <div class="form-group amount-group">
+            <label>Amount</label>
+            <input type="number" name="expenses[0][amount]" step="0.01" min="0" required placeholder="0.00">
+          </div>
+          <div class="form-group currency-group">
+            <label>Currency</label>
+            <input type="text" name="expenses[0][currency]" list="currency-suggestions" placeholder="e.g. BRL" maxlength="3" autocomplete="off" required>
+          </div>
+          <button type="button" class="btn btn-danger btn-sm remove-expense" style="visibility:hidden">&times;</button>
+        </div>
+      <% } %>
+    </div>
+
+    <datalist id="currency-suggestions">
+      <option value="AUD"></option>
+      <option value="BRL"></option>
+      <option value="CAD"></option>
+      <option value="CHF"></option>
+      <option value="CNY"></option>
+      <option value="CZK"></option>
+      <option value="GBP"></option>
+      <option value="IDR"></option>
+      <option value="INR"></option>
+      <option value="JPY"></option>
+      <option value="KRW"></option>
+      <option value="MXN"></option>
+      <option value="NZD"></option>
+      <option value="PLN"></option>
+      <option value="RUB"></option>
+      <option value="SEK"></option>
+      <option value="TRY"></option>
+      <option value="UAH"></option>
+      <option value="ZAR"></option>
+    </datalist>
+
+    <button type="button" id="add-expense" class="btn btn-secondary">+ Add Expense</button>
+  </div>
+
+  <div class="form-section">
+    <h2>Additional Information</h2>
+    <div class="form-group">
+      <label for="description">Description / Notes</label>
+      <textarea name="description" id="description" rows="4" placeholder="Explain why you need travel support, what you will contribute to the event, etc."><%= editing ? (request.description || '') : '' %></textarea>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary"><%= editing ? 'Save Changes' : 'Create Request' %></button>
+    <a href="<%= editing ? '/requests/' + request.id : '/' %>" class="btn btn-secondary">Cancel</a>
+  </div>
+</form>
+
+<script>
+  let expenseCount = <%= startIdx %>;
+  document.getElementById('add-expense').addEventListener('click', function() {
+    const list = document.getElementById('expenses-list');
+    const first = list.querySelector('.expense-row');
+    const clone = first.cloneNode(true);
+    clone.querySelectorAll('input, select').forEach(el => {
+      el.name = el.name.replace(/\[\d+\]/, '[' + expenseCount + ']');
+      if (el.type !== 'select-one') el.value = '';
+    });
+    clone.querySelector('.remove-expense').style.visibility = 'visible';
+    list.appendChild(clone);
+    expenseCount++;
+  });
+
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-expense')) {
+      const list = e.target.closest('#expenses-list');
+      if (list.querySelectorAll('.expense-row').length > 1) {
+        e.target.closest('.expense-row').remove();
+      }
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>
