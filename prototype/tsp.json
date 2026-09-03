@@ -159,6 +159,19 @@
       "approved_at": "2026-09-01T11:38:18.383Z",
       "accepted_at": "2026-09-01T11:38:43.863Z",
       "accepted_by": 2
+    },
+    {
+      "user_id": 2,
+      "event_id": "3",
+      "description": "",
+      "talk_url": "http://o.o./talk",
+      "talk_title": "xo talk",
+      "state": "submitted_for_payment",
+      "id": 6,
+      "updated_at": "2026-09-03T14:34:19.240Z",
+      "approved_at": "2026-09-03T14:31:43.695Z",
+      "accepted_at": "2026-09-03T14:32:52.357Z",
+      "accepted_by": 2
     }
   ],
   "expenses": [
@@ -205,6 +218,16 @@
       "estimated_amount": 3,
       "estimated_currency": "eur",
       "id": 5,
+      "approved_amount": 2,
+      "approved_currency": "EUR"
+    },
+    {
+      "request_id": 6,
+      "category": "transportation",
+      "description": "plane",
+      "estimated_amount": 3,
+      "estimated_currency": "usd",
+      "id": 6,
       "approved_amount": 2,
       "approved_currency": "EUR"
     }
@@ -281,6 +304,66 @@
       "recipient_email": "ddemaio@opensuse.org",
       "payment_reference": "TSP-5",
       "id": 6
+    },
+    {
+      "request_id": "6",
+      "amount": 2,
+      "currency": "EUR",
+      "method": "wise-csv",
+      "wise_transfer_id": null,
+      "wise_status": null,
+      "recipient_name": "Douglas DeMaio",
+      "recipient_email": "ddemaio@opensuse.org",
+      "payment_reference": "TSP-6",
+      "id": 7
+    },
+    {
+      "request_id": "6",
+      "amount": 2,
+      "currency": "EUR",
+      "method": "wise-api",
+      "wise_transfer_id": "WISE-1788446170986-r54du2",
+      "wise_status": "processing",
+      "recipient_name": "Douglas DeMaio",
+      "recipient_email": "ddemaio@opensuse.org",
+      "payment_reference": "TSP-6",
+      "id": 8
+    },
+    {
+      "request_id": "6",
+      "amount": 2,
+      "currency": "EUR",
+      "method": "wise-api",
+      "wise_transfer_id": "WISE-1788446211599-9bf43g",
+      "wise_status": "processing",
+      "recipient_name": "Douglas DeMaio",
+      "recipient_email": "ddemaio@opensuse.org",
+      "payment_reference": "TSP-6",
+      "id": 9
+    },
+    {
+      "request_id": "6",
+      "amount": 2,
+      "currency": "EUR",
+      "method": "bank-transfer",
+      "wise_transfer_id": null,
+      "wise_status": null,
+      "recipient_name": "Douglas DeMaio",
+      "recipient_email": "ddemaio@opensuse.org",
+      "payment_reference": "TSP-6",
+      "id": 10
+    },
+    {
+      "request_id": "6",
+      "amount": 2,
+      "currency": "EUR",
+      "method": "wise-api",
+      "wise_transfer_id": "WISE-1788446222336-aunoea",
+      "wise_status": "processing",
+      "recipient_name": "Douglas DeMaio",
+      "recipient_email": "ddemaio@opensuse.org",
+      "payment_reference": "TSP-6",
+      "id": 11
     }
   ],
   "state_history": [
@@ -454,6 +537,45 @@
       "user_id": 3,
       "notes": "Payment confirmed via Wise (WISE-1788264114235-c5dz6w)",
       "id": 22
+    },
+    {
+      "request_id": 6,
+      "from_state": null,
+      "to_state": "draft",
+      "user_id": 2,
+      "id": 23
+    },
+    {
+      "request_id": 6,
+      "from_state": "draft",
+      "to_state": "submitted",
+      "user_id": 2,
+      "notes": null,
+      "id": 24
+    },
+    {
+      "request_id": 6,
+      "from_state": "submitted",
+      "to_state": "approved",
+      "user_id": 1,
+      "notes": "info",
+      "id": 25
+    },
+    {
+      "request_id": 6,
+      "from_state": "approved",
+      "to_state": "accepted",
+      "user_id": 2,
+      "notes": "Requester accepted the approved request and agreed to the Code of Conduct and TSP rules",
+      "id": 26
+    },
+    {
+      "request_id": 6,
+      "from_state": "accepted",
+      "to_state": "submitted_for_payment",
+      "user_id": 2,
+      "notes": "Requester uploaded all required documents and submitted the request for payment",
+      "id": 27
     }
   ],
   "comments": [],
@@ -537,6 +659,36 @@
       "size": 2,
       "uploaded_by": 2,
       "id": 8
+    },
+    {
+      "request_id": 6,
+      "kind": "receipt",
+      "filename": "1788445992323-ODSD Prospectus.pdf",
+      "original_name": "ODSD Prospectus.pdf",
+      "mimetype": "application/pdf",
+      "size": 97135,
+      "uploaded_by": 2,
+      "id": 9
+    },
+    {
+      "request_id": 6,
+      "kind": "invoice",
+      "filename": "1788446017722-ODSD Prospectus.pdf",
+      "original_name": "ODSD Prospectus.pdf",
+      "mimetype": "application/pdf",
+      "size": 97135,
+      "uploaded_by": 2,
+      "id": 10
+    },
+    {
+      "request_id": 6,
+      "kind": "signed_form",
+      "filename": "1788446053831-Travel Support Program.pdf",
+      "original_name": "Travel Support Program.pdf",
+      "mimetype": "application/pdf",
+      "size": 26471,
+      "uploaded_by": 2,
+      "id": 11
     }
   ]
 }
